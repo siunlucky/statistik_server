@@ -1,0 +1,22 @@
+version: "3"
+services:
+  node80:
+    image: node
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - 80
+    ports:
+      - 80:80
+    command: "node app_80.js"
+  node443:
+    image: node
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - 443
+    ports:
+      - 443:443
+    command: "node app_443.js"

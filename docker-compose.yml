@@ -1,0 +1,34 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: DockerFile
+    image: php
+    volumes:
+      - ./:/var/www
+
+  web:
+    image: nginx
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./ssl/biznet_ssl.crt:/etc/ssl/certs/server.crt
+      - ./ssl/domain.key:/etc/ssl/private/server.key
+    ports:
+      - 8000:443
+
+  db:
+    image: mysql:8.4.0-oraclelinux8
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: qazzxc123
+  
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8888:80
+    depends_on:
+      - db
