@@ -30,6 +30,10 @@ class visitor extends Model
         'parent_dataset_2',
         'dataset_2',
         'usia',
-        'gender'
+        'gender',
+        'email',
+        'gender',
+        'email',
+        'website_akses'
     ];
 }

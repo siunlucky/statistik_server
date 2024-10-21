@@ -83,6 +83,8 @@ class VisitorControllerApi extends Controller
             'daerah_2' => $request->daerah_2,
             'parent_dataset_2' => $request->parent_dataset_2,
             'dataset_2' => $request->dataset_2,
+            'email' => $request->email,
+            'website_akses' => $request->website_akses
             // 'usia' => $age->y,
             // 'gender' => $request->gender
         ]);
