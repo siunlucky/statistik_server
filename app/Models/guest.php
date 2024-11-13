@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class guest extends Model
 {
+    protected $connection = 'mysql';
+
     use HasFactory;
     use SoftDeletes;
     protected $table = 'guest';

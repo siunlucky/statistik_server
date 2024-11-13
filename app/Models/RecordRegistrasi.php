@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RecordRegistrasi extends Model
 {
+    protected $connection = 'mysql';
+
     use HasFactory;
     use SoftDeletes;
 

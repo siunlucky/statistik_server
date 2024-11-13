@@ -5,15 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class halaman extends Model
+class Member extends Model
 {
-    protected $connection = 'mysql';
-
     use HasFactory;
-    protected $table = 'halaman';
+    protected $connection = 'second_db';
+    protected $table = 'member';
     protected $primaryKey = 'id';
-
-    protected $fillable = [
-        'nama'
-    ];
 }

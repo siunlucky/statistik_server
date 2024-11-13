@@ -1,9 +1,12 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MasterControllerApi;
 use App\Http\Controllers\VisitorControllerApi;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\VisitorController;
+use App\Http\Controllers\Api\ServerStatusController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -25,6 +28,35 @@ Route::get('test/{id}', function($id){
     return $id;
 });
 
+
+Route::prefix('server-status')->group(function () {
+    Route::get('/', [ServerStatusController::class, 'index']);
+});
+
+Route::prefix('graph')->group(function () {
+    Route::get('/visitor', [VisitorController::class, 'visitor']);
+    Route::prefix('/users')->group(function () {
+        Route::get('/new-users', [VisitorController::class, 'new_users']);
+        Route::get('/returning-users', [VisitorController::class, 'returning_users']);
+        Route::prefix('/returning-users')->group(function () {
+            Route::get('/daily', [VisitorController::class, 'returning_users_daily']);
+            Route::get('/weekly', [VisitorController::class, 'returning_users_weekly']);
+            Route::get('/monthly', [VisitorController::class, 'returning_users_monthly']);
+            Route::get('/yearly', [VisitorController::class, 'returning_users_yearly']);
+        });
+    });
+
+});
+
+Route::get('/test', function(){
+    DB::connection()->getPDO();
+    try {
+        DB::connection()->getPDO();
+        return DB::connection()->getDatabaseName();
+        } catch (\Exception $e) {
+        return 'None';
+    }
+});
 // Route::prefix('master')->group(function(){
 //     Route::get('/halaman', function(){
 //         return 'tes';
