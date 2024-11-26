@@ -51,56 +51,6 @@ class VisitorController extends Controller
         return (new OKResponse($datas, count($datas)))->toResponse();
     }
 
-    public function new_users(Request $request){
-        // get new user by created_at but only date on datetime
-        $datas = Member::query()
-            ->select('email', 'created_at')
-            ->whereNotNull('email')
-            ->where('email', '<>', 'Anonym')
-            ->get()
-            ->groupBy(function ($item) {
-                return Carbon::parse($item->created_at)->format('Y-m-d');
-            })
-            ->map(function ($group, $tanggal) {
-                $users = $group->pluck('email')->unique()->values()->all();
-
-                return [
-                    'tanggal' => $tanggal,
-                    'new_users' => $users,
-                    'total_new_users' => count($users)
-                ];
-            })
-            ->values();
-
-        // $firstActionDates = visitor::query()
-        //     ->select('email', DB::raw('MIN(tanggal) as first_date'))
-        //     ->whereNotNull('email')
-        //     ->where('email', '<>', 'Anonym')
-        //     ->groupBy('email')
-        //     ->pluck('first_date', 'email');
-
-        // $datas = visitor::query()
-        //     ->distinct()
-        //     ->get(['email', 'tanggal'])
-        //     ->groupBy('tanggal')
-        //     ->map(function ($group, $tanggal) use ($firstActionDates) {
-        //         $users = $group->filter(function ($item) use ($firstActionDates, $tanggal) {
-        //             return isset($firstActionDates[$item->email]) && $firstActionDates[$item->email] === $tanggal;
-        //         })->pluck('email')->unique()->values()->all();
-
-
-
-        //         return [
-        //             'tanggal' => $tanggal,
-        //             'new_users' => $users,
-        //             'total_new_users' => count($users)
-        //         ];
-        //     })
-        //     ->values();
-
-        return (new OKResponse($datas, count($datas)))->toResponse();
-    }
-
     public function returning_users_weekly(Request $request){
         // KONSEP FAIZ
         $returning_user = visitor::query()
@@ -128,9 +78,8 @@ class VisitorController extends Controller
 
 
         $returning_user = collect($returning_user)->map(function ($item) {
-            // filtering untuk setiap users apakah dia tidak mengakses dalam waktu 7 hari terakhir, jika iya maka masukkan email user tersebut ke dalam array pada tanggal tersebut
             $item['user'] = collect($item['user'])->filter(function ($email) use ($item) {
-                $last_7_days = Carbon::parse($item['tanggal'])->subDays(7); // ini kalo mau di ganti semisal di ganti 5 hari sebelum
+                $last_7_days = Carbon::parse($item['tanggal'])->subDays(7);
                 $user = visitor::query()
                     ->where('email', $email)
                     ->where('tanggal', '>=', $last_7_days)
@@ -214,11 +163,9 @@ class VisitorController extends Controller
             ->get(['tanggal', 'email'])
             ->sortBy('tanggal')
             ->groupBy(function ($item) {
-                // Group by month and year (format YYYY-MM)
                 return Carbon::parse($item->tanggal)->format('Y-m');
             })
             ->map(function ($group, $monthYear) {
-                // Filter and get unique users as per your conditions
                 $users = $group->filter(function ($item) {
                     return (!is_null($item->email) && $item->email !== 'Anonym') || $item->status === 1;
                 })->map(function ($item) {
@@ -238,7 +185,6 @@ class VisitorController extends Controller
         $returning_user = collect($returning_user)->map(function ($item) {
             $item = collect($item);
 
-            // Filter to check if users were not present in the previous month
             $item['user'] = collect($item['user'])->filter(function ($email) use ($item) {
                 $currentMonth = Carbon::createFromFormat('Y-m', $item['month_year']);
                 $lastMonthStart = $currentMonth->copy()->subMonthNoOverflow()->startOfMonth();
@@ -268,11 +214,9 @@ class VisitorController extends Controller
             ->get(['tanggal', 'email'])
             ->sortBy('tanggal')
             ->groupBy(function ($item) {
-                // Group by year only (format YYYY)
                 return Carbon::parse($item->tanggal)->format('Y');
             })
             ->map(function ($group, $year) {
-                // Filter and get unique users as per your conditions
                 $users = $group->filter(function ($item) {
                     return (!is_null($item->email) && $item->email !== 'Anonym') || $item->status === 1;
                 })->map(function ($item) {
@@ -292,7 +236,6 @@ class VisitorController extends Controller
         $returning_user = collect($returning_user)->map(function ($item) {
             $item = collect($item);
 
-            // Filter to check if users were not present in the previous year
             $item['user'] = collect($item['user'])->filter(function ($email) use ($item) {
                 $currentYear = Carbon::createFromFormat('Y', $item['year']);
                 $lastYearStart = $currentYear->copy()->subYear()->startOfYear();
