@@ -1,19 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Otonometer;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Member extends Model
+class Dataran extends Model
 {
     use HasFactory;
     protected $connection = 'second_db';
-    protected $table = 'member';
+    protected $table = 'halaman';
     protected $primaryKey = 'id';
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 }

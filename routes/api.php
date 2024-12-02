@@ -48,22 +48,12 @@ Route::middleware([EnsureTokenIsValid::class])->group(function () {
     });
 
     Route::prefix('graph')->group(function () {
-        Route::get('/visitor', [VisitorController::class, 'visitor']);
-
         Route::prefix('/users')->group(function () {
+            Route::get('/', [MemberController::class, 'users']);
             Route::get('/new-users', [MemberController::class, 'new_users']);
-            Route::get('/new-users-based-on-age', [MemberController::class, 'new_users_based_on_age']);
-
-
-            Route::prefix('/returning-users')->group(function () {
-                Route::get('/daily', [VisitorController::class, 'returning_users_daily']);
-                Route::get('/weekly', [VisitorController::class, 'returning_users_weekly']);
-                Route::get('/monthly', [VisitorController::class, 'returning_users_monthly']);
-                Route::get('/yearly', [VisitorController::class, 'returning_users_yearly']);
-            });
+            Route::get('/user-growth', [MemberController::class, 'user_growth']);
 
             Route::get('/total-verified-email', [MemberController::class, 'total_verified_email']);
-
         });
     });
 });
