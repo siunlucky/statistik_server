@@ -51,9 +51,12 @@ Route::middleware([EnsureTokenIsValid::class])->group(function () {
         Route::prefix('/users')->group(function () {
             Route::get('/', [MemberController::class, 'users']);
             Route::get('/new-users', [MemberController::class, 'new_users']);
+            Route::get('/returning-users', [MemberController::class, 'returning_users']);
             Route::get('/user-growth', [MemberController::class, 'user_growth']);
 
             Route::get('/total-verified-email', [MemberController::class, 'total_verified_email']);
         });
+
+        Route::get('/visitors', [MemberController::class, 'visitors']);
     });
 });
