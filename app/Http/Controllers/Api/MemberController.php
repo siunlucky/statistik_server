@@ -303,13 +303,13 @@ class MemberController extends Controller
         };
 
         if ($start_date->gt($end_date)) {
-            return response()->json(['error' => 'start_date must be before end_date'], 400);
+            return (new BadRequestErrorResponse('start_date must be before end_date'))->toResponse();
         } elseif ($type === 'day' && $start_date->diffInDays($end_date) > 31) {
-            return response()->json(['error' => 'Date range must not exceed 31 days for daily data'], 400);
+            return (new BadRequestErrorResponse('Date range must not exceed 31 days for daily data'))->toResponse();
         } elseif ($type === 'hour' && $start_date->diffInDays($end_date) > 7) {
-            return response()->json(['error' => 'Date range must not exceed 7 days for hourly data'], 400);
+            return (new BadRequestErrorResponse('Date range must not exceed 7 days for hourly data'))->toResponse();
         } elseif ($type === 'minute' && $start_date->diffInDays($end_date) > 1) {
-            return response()->json(['error' => 'Date range must not exceed 1 day for minute-level data'], 400);
+            return (new BadRequestErrorResponse('Date range must not exceed 1 day for minute-level data'))->toResponse();
         }
 
         $datas = MemberAktifitas::query()
@@ -343,9 +343,18 @@ class MemberController extends Controller
 
             // $users = $group->values()->all();
 
-            $users = $group->values()->map(function ($item) {
+            $users = $group->filter(function ($item) use ($key, $type) {
+                $registrationTime = Carbon::parse($item->member->created_at);
+                $keyTime = Carbon::createFromFormat(match ($type) {
+                    'minute' => 'Y-m-d H:i',
+                    'hour' => 'Y-m-d H',
+                    'day' => 'Y-m-d',
+                }, $key);
+
+                return $registrationTime->lt($keyTime);
+            })->values()->map(function ($item) {
                 return $item->member;
-            })->filter();
+            });
 
 
 
@@ -371,7 +380,7 @@ class MemberController extends Controller
     $validTypes = ['minute', 'hour', 'day'];
 
     if (!in_array($type, $validTypes)) {
-        return response()->json(['error' => 'Invalid Type'], 400);
+        return (new BadRequestErrorResponse('Invalid Type'))->toResponse();
     }
 
     $end_date = Carbon::parse($request->get('end_date', Carbon::now()));
@@ -381,10 +390,14 @@ class MemberController extends Controller
         'minute' => Carbon::parse($request->get('start_date', Carbon::now()->subDay()))
     };
 
-    if ($start_date && $end_date) {
-        if ($start_date->gt($end_date)) {
-            return (new BadRequestErrorResponse('start_date must be before end_date'))->toResponse();
-        }
+    if ($start_date->gt($end_date)) {
+        return (new BadRequestErrorResponse('start_date must be before end_date'))->toResponse();
+    } elseif ($type === 'day' && $start_date->diffInDays($end_date) > 31) {
+        return (new BadRequestErrorResponse('Date range must not exceed 31 days for daily data'))->toResponse();
+    } elseif ($type === 'hour' && $start_date->diffInDays($end_date) > 7) {
+        return (new BadRequestErrorResponse('Date range must not exceed 7 days for hourly data'))->toResponse();
+    } elseif ($type === 'minute' && $start_date->diffInDays($end_date) > 1) {
+        return (new BadRequestErrorResponse('Date range must not exceed 1 day for minute-level data'))->toResponse();
     }
 
     $access_from = $request->get('registered_from', null);
