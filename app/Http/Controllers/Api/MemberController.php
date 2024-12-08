@@ -43,77 +43,6 @@ class MemberController extends Controller
         return (new OKResponse($datas, count($datas)))->toResponse();
     }
 
-    public function new_users(Request $request){
-        $type = $request->get('type', 'day');
-        $validTypes = ['minute', 'hour', 'day'];
-
-        if (!in_array($type, $validTypes)) {
-            return (new BadRequestErrorResponse('Invalid Type'))->toResponse();
-        }
-
-        $end_date = Carbon::parse($request->get('end_date', Carbon::now()));
-        $start_date = match ($type) {
-            'day' => Carbon::parse($request->get('start_date', Carbon::now()->subMonth())),
-            'hour' => Carbon::parse($request->get('start_date', Carbon::now()->subWeek())),
-            'minute' => Carbon::parse($request->get('start_date', Carbon::now()))
-        };
-
-        if ($start_date->gt($end_date)) {
-            return response()->json(['error' => 'start_date must be before end_date'], 400);
-        } elseif ($type == "day" && $start_date->diffInDays($end_date) > 32) {
-            return response()->json(['error' => 'Date range must not exceed 31 days for daily data'], 400);
-        } elseif ($type == "hour" && $start_date->diffInDays($end_date) > 8) {
-            return response()->json(['error' => 'Date range must not exceed 7 days for hourly data'], 400);
-        } elseif ($type == "minute" && $start_date->diffInDays($end_date) > 1) {
-            return response()->json(['error' => 'Date range must not exceed 1 day for minute-level data'], 400);
-        }
-
-        $registered_from = $request->get('registered_from', null);
-
-        $datas = Member::query()
-            ->whereBetween('created_at', [$start_date, $end_date]);
-
-        if ($registered_from != null) {
-            $datas = $datas->where('website_register', $registered_from);
-        }
-
-        $datas = $datas->get()
-            ->groupBy(function ($item) use ($type) {
-                return match ($type) {
-                    'minute' => Carbon::parse($item->created_at)->format('Y-m-d H:i'),
-                    'hour' => Carbon::parse($item->created_at)->format('Y-m-d H'),
-                    'day' => Carbon::parse($item->created_at)->format('Y-m-d')
-                };
-            });
-
-        $current = $start_date->copy();
-        $filledData = collect();
-        while ($current->lte($end_date)) {
-            $key = $current->format(match ($type) {
-                'minute' => 'Y-m-d H:i',
-                'hour' => 'Y-m-d H',
-                'day' => 'Y-m-d'
-            });
-
-            $group = $datas->get($key, collect());
-            $users = $group->values()->all();
-
-            $filledData->push([
-                $type => $key,
-                'data' => $users,
-                'total_new_users' => count($users)
-            ]);
-
-            $current->add(match ($type) {
-                'minute' => 'minute',
-                'hour' => 'hour',
-                'day' => 'day'
-            }, 1);
-        }
-
-        return (new OKResponse($filledData->values(), $filledData->count()))->toResponse();
-    }
-
     public function total_verified_email(Request $request){
         $start_date = $request->get('start_date') ? Carbon::parse($request->get('start_date'))->startOfDay() : null;
         $end_date = $request->get('end_date') ? Carbon::parse($request->get('end_date'))->endOfDay() : Carbon::now()->endOfDay();
@@ -287,6 +216,79 @@ class MemberController extends Controller
         return (new OKResponse($age_groups, count($age_groups)))->toResponse();
     }
 
+    public function new_users(Request $request){
+        $type = $request->get('type', 'day');
+        $validTypes = ['minute', 'hour', 'day'];
+
+        if (!in_array($type, $validTypes)) {
+            return (new BadRequestErrorResponse('Invalid Type'))->toResponse();
+        }
+
+        $end_date = Carbon::parse($request->get('end_date', Carbon::now()));
+        $start_date = match ($type) {
+            'day' => Carbon::parse($request->get('start_date', Carbon::now()->subMonth())),
+            'hour' => Carbon::parse($request->get('start_date', Carbon::now()->subWeek())),
+            'minute' => Carbon::parse($request->get('start_date', Carbon::now()))
+        };
+
+        if ($start_date->gt($end_date)) {
+            return response()->json(['error' => 'start_date must be before end_date'], 400);
+        } elseif ($type == "day" && $start_date->diffInDays($end_date) > 32) {
+            return response()->json(['error' => 'Date range must not exceed 31 days for daily data'], 400);
+        } elseif ($type == "hour" && $start_date->diffInDays($end_date) > 8) {
+            return response()->json(['error' => 'Date range must not exceed 7 days for hourly data'], 400);
+        } elseif ($type == "minute" && $start_date->diffInDays($end_date) > 1) {
+            return response()->json(['error' => 'Date range must not exceed 1 day for minute-level data'], 400);
+        }
+
+        $registered_from = $request->get('registered_from', null);
+
+        $datas = Member::query()
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->with('wilayah.province');
+
+
+        if ($registered_from != null) {
+            $datas = $datas->where('website_register', $registered_from);
+        }
+
+        $datas = $datas->get()
+            ->groupBy(function ($item) use ($type) {
+                return match ($type) {
+                    'minute' => Carbon::parse($item->created_at)->format('Y-m-d H:i'),
+                    'hour' => Carbon::parse($item->created_at)->format('Y-m-d H'),
+                    'day' => Carbon::parse($item->created_at)->format('Y-m-d')
+                };
+            });
+
+        $current = $start_date->copy();
+        $filledData = collect();
+        while ($current->lte($end_date)) {
+            $key = $current->format(match ($type) {
+                'minute' => 'Y-m-d H:i',
+                'hour' => 'Y-m-d H',
+                'day' => 'Y-m-d'
+            });
+
+            $group = $datas->get($key, collect());
+            $users = $group->values()->all();
+
+            $filledData->push([
+                $type => $key,
+                'data' => $users,
+                'total_new_users' => count($users)
+            ]);
+
+            $current->add(match ($type) {
+                'minute' => 'minute',
+                'hour' => 'hour',
+                'day' => 'day'
+            }, 1);
+        }
+
+        return (new OKResponse($filledData->values(), $filledData->count()))->toResponse();
+    }
+
     public function returning_users(Request $request){
         $type = $request->get('type', 'day');
         $validTypes = ['minute', 'hour', 'day'];
@@ -318,7 +320,7 @@ class MemberController extends Controller
                 $query->where('access_from', $request->get('registered_from'));
             })
             ->whereNotNull('id_member')
-            ->with('member')
+            ->with('member.wilayah.province')
             ->get()
             ->groupBy(function ($item) use ($type) {
                 return match ($type) {
@@ -341,22 +343,20 @@ class MemberController extends Controller
             $group = $datas->get($key, collect())
                 ->unique('id_member');
 
-            // $users = $group->values()->all();
-
+            // Get only returning users by excluding new users
             $users = $group->filter(function ($item) use ($key, $type) {
-                $registrationTime = Carbon::parse($item->member->created_at);
-                $keyTime = Carbon::createFromFormat(match ($type) {
+                $registrationTime = Carbon::parse($item->member->created_at)->format(match ($type) {
                     'minute' => 'Y-m-d H:i',
                     'hour' => 'Y-m-d H',
                     'day' => 'Y-m-d',
-                }, $key);
+                });
 
-                return $registrationTime->lt($keyTime);
+                $keyTime = $key;
+
+                return $registrationTime < $keyTime;
             })->values()->map(function ($item) {
                 return $item->member;
             });
-
-
 
             $filledData->push([
                 $type => $key,
@@ -373,6 +373,7 @@ class MemberController extends Controller
 
         return (new OKResponse($filledData->values(), $filledData->count()))->toResponse();
     }
+
 
     public function visitors(Request $request)
 {
