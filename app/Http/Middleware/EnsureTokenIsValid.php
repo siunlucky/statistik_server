@@ -20,22 +20,21 @@ class EnsureTokenIsValid
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // try {
-        //     // Parse the token from the request and extract the payload
-        //     $token = JWTAuth::parseToken();
-        //     $payload = $token->getPayload();
+        try {
+            $token = JWTAuth::parseToken();
+            $payload = $token->getPayload();
 
-        //     $user = $payload->get('user');
+            $user = $payload->get('user');
 
-        //     $request->merge(['user' => $user]);
+            $request->merge(['user' => $user]);
 
-        // } catch (TokenExpiredException $e) {
-        //     return (new UnauthorizedErrorResponse('Token expired'))->toResponse();
-        // } catch (TokenInvalidException $e) {
-        //     return (new UnauthorizedErrorResponse('Token invalid'))->toResponse();
-        // } catch (JWTException $e) {
-        //     return (new UnauthorizedErrorResponse('Token Needed'))->toResponse();
-        // }
+        } catch (TokenExpiredException $e) {
+            return (new UnauthorizedErrorResponse('Token expired'))->toResponse();
+        } catch (TokenInvalidException $e) {
+            return (new UnauthorizedErrorResponse('Token invalid'))->toResponse();
+        } catch (JWTException $e) {
+            return (new UnauthorizedErrorResponse('Token Needed'))->toResponse();
+        }
 
         return $next($request);
     }

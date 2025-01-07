@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureTokenIsValid;
+use App\Http\Controllers\Api\ModulController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\MasterControllerApi;
 use App\Http\Controllers\Api\MemberController;
@@ -53,10 +54,13 @@ Route::middleware([EnsureTokenIsValid::class])->group(function () {
             Route::get('/new-users', [MemberController::class, 'new_users']);
             Route::get('/returning-users', [MemberController::class, 'returning_users']);
             Route::get('/user-growth', [MemberController::class, 'user_growth']);
+            Route::get('/user-acqusition', [MemberController::class, 'user_acqusition']);
 
             Route::get('/total-verified-email', [MemberController::class, 'total_verified_email']);
         });
 
         Route::get('/visitors', [MemberController::class, 'visitors']);
+
+        Route::get('/module', [ModulController::class, 'module']);
     });
 });

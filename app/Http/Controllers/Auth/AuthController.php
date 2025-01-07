@@ -62,7 +62,7 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth()->logout();
+        auth()->logout(true);
 
         return (new OKResponse(['message' => 'Successfully logged out'], 1))->toResponse();
     }
@@ -74,7 +74,7 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->respondWithToken(auth()->refresh(true, true));
     }
 
     /**
@@ -89,7 +89,7 @@ class AuthController extends Controller
         $data = [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL() * 10000 // 60 minutes
         ];
 
         return (new OKResponse($data, 1))->toResponse();
