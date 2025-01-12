@@ -238,13 +238,21 @@ class MemberController extends Controller
                     case 4:
                         return 'Thread';
                     case 5:
-                        return 'Website Neraca Ruang';
+                        return 'Website NR';
                     case 6:
                         return 'Google';
                     case 8:
                         return 'X (twitter)';
                     case 9:
                         return 'TikTok';
+                    case 10:
+                        return 'Youtube';
+                    case 11:
+                        return 'Event NR';
+                    case 12:
+                        return 'Friends/Colleagues';
+                    case 13:
+                        return 'Other';
                     default:
                         return 'Unknown';
                 }
@@ -275,7 +283,7 @@ class MemberController extends Controller
                 'total_users' => 0,
             ],
             [
-                'reference_id' => 'Website Neraca Ruang',
+                'reference_id' => 'Website NR',
                 'total_users' => 0,
             ],
             [
@@ -288,6 +296,22 @@ class MemberController extends Controller
             ],
             [
                 'reference_id' => 'TikTok',
+                'total_users' => 0,
+            ],
+            [
+                'reference_id' => 'Youtube',
+                'total_users' => 0,
+            ],
+            [
+                'reference_id' => 'Event NR',
+                'total_users' => 0,
+            ],
+            [
+                'reference_id' => 'Friends/Colleagues',
+                'total_users' => 0,
+            ],
+            [
+                'reference_id' => 'Other',
                 'total_users' => 0,
             ],
             [

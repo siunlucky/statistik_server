@@ -27,4 +27,10 @@ class Wilayah extends Model
     {
         return $this->hasOne(Dataran::class, 'id', 'id_dataran');
     }
+
+    public function getNamaAttribute($value)
+    {
+        $decodedValue = json_decode($value, true);
+        return $decodedValue['id'] ?? null;
+    }
 }

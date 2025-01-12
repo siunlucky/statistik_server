@@ -41,7 +41,7 @@ class ModulController extends Controller
 
         $access_from = $request->get('registered_from', null);
 
-        $tipe_halaman = $request->get('tipe_halaman', null);
+        $tipe_halaman = $request->get('tipe_halaman', default: null);
         if ($tipe_halaman == 1) {
             $tipe_halaman = 'JELAJAH';
         } else if ($tipe_halaman == 2) {

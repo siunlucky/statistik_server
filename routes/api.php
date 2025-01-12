@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ModulController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\MasterControllerApi;
 use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\VisitorControllerApi;
 use App\Http\Controllers\Api\VisitorController;
 use App\Http\Controllers\Api\ServerStatusController;
@@ -62,5 +63,7 @@ Route::middleware([EnsureTokenIsValid::class])->group(function () {
         Route::get('/visitors', [MemberController::class, 'visitors']);
 
         Route::get('/module', [ModulController::class, 'module']);
+        Route::get('/popular-region', [RegionController::class, 'popular_regions']);
+        Route::get('/region', [RegionController::class, 'regions']);
     });
 });
