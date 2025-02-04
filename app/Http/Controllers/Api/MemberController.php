@@ -532,7 +532,7 @@ class MemberController extends Controller
 
         $datas = MemberAktifitas::query()
             ->whereBetween('created_at', [$start_date, $end_date])
-            ->when($access_from, function ($query) use ($access_from) {
+            ->when($access_from !== null, function ($query) use ($access_from) {
                 $query->where('access_from', $access_from);
             })
             ->with('member')

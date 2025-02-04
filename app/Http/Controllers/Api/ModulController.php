@@ -69,10 +69,11 @@ class ModulController extends Controller
         $dataset_2 = $request->get('dataset_2', null);
 
         if ($tipe_halaman == null) {
+
             $datas = MemberAktifitas::query()
                 ->where('activity', 'view')
                 ->whereBetween('created_at', [$start_date, $end_date])
-                ->when($access_from, function ($query) use ($access_from) {
+                ->when($access_from !== null, function ($query) use ($access_from) {
                     return $query->where('access_from', $access_from);
                 })
                 ->with(['halaman' => function ($query) {
@@ -94,6 +95,7 @@ class ModulController extends Controller
                     ];
                 })
                 ->values();
+
 
             $data_case = [
                 [
@@ -128,7 +130,7 @@ class ModulController extends Controller
                 ->select('id', 'id_member', 'activity', 'created_at', 'access_from', 'id_halaman')
                 ->where('activity', 'view')
                 ->whereBetween('created_at', [$start_date, $end_date])
-                ->when($access_from, function ($query) use ($access_from) {
+                ->when($access_from !== null, function ($query) use ($access_from) {
                     return $query->where('access_from', $access_from);
                 })
                 ->when($tipe_halaman, function ($query) use ($tipe_halaman) {
@@ -234,7 +236,7 @@ class ModulController extends Controller
                 ->select('id', 'id_member', 'activity', 'created_at', 'access_from', 'id_halaman')
                 ->where('activity', 'view')
                 ->whereBetween('created_at', [$start_date, $end_date])
-                ->when($access_from, function ($query) use ($access_from) {
+                ->when($access_from !== null, function ($query) use ($access_from) {
                     return $query->where('access_from', $access_from);
                 })
                 ->when($tipe_halaman, function ($query) use ($tipe_halaman) {
@@ -326,7 +328,7 @@ class ModulController extends Controller
             ->select('id', 'id_member', 'activity', 'created_at', 'access_from', 'id_halaman')
             ->where('activity', 'view')
             ->whereBetween('created_at', [$start_date, $end_date])
-            ->when($access_from, function ($query) use ($access_from) {
+            ->when($access_from !== null, function ($query) use ($access_from) {
                 return $query->where('access_from', $access_from);
             })
             ->when($tipe_halaman, function ($query) use ($tipe_halaman) {
