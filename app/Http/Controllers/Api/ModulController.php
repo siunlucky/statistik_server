@@ -83,6 +83,10 @@ class ModulController extends Controller
                     return $query->whereHas('halaman', function ($subQuery) use ($tahun) {
                         $subQuery->where('tahun', $tahun);
                     });
+                }, function ($query){
+                    return $query->whereHas('halaman', function ($subQuery) {
+                        $subQuery->where('tahun', '<=', 2023)->where('tahun', '>=', 2013);
+                    });
                 })
                 ->get()
                 ->groupBy(function ($item) {
@@ -139,15 +143,20 @@ class ModulController extends Controller
                     });
                 })
                 ->with(['halaman' => function ($query) {
-                    $query->select('id','halaman_tipe', 'dataset_1', 'dataset_2', 'parent_1', 'parent_2');
+                    $query->select('id','halaman_tipe',"tahun", 'dataset_1', 'dataset_2', 'parent_1', 'parent_2');
                     }
                 ])
                 ->when($tahun, function ($query) use ($tahun) {
                     return $query->whereHas('halaman', function ($subQuery) use ($tahun) {
                         $subQuery->where('tahun', $tahun);
                     });
+                }, function ($query){
+                    return $query->whereHas('halaman', function ($subQuery) {
+                        $subQuery->where('tahun', '<=', 2023)->where('tahun', '>=', 2013);
+                    });
                 })
                 ->get();
+            // return $datas;
 
 
                 // return (new OKResponse($datas, 1))->toResponse();
@@ -251,6 +260,10 @@ class ModulController extends Controller
                     return $query->whereHas('halaman', function ($subQuery) use ($tahun) {
                         $subQuery->where('tahun', $tahun);
                     });
+                }, function ($query){
+                    return $query->whereHas('halaman', function ($subQuery) {
+                        $subQuery->where('tahun', '<=', 2023)->where('tahun', '>=', 2013);
+                    });
                 })
                 ->get();
 
@@ -342,6 +355,10 @@ class ModulController extends Controller
             ->when($tahun, function ($query) use ($tahun) {
                 return $query->whereHas('halaman', function ($subQuery) use ($tahun) {
                     $subQuery->where('tahun', $tahun);
+                });
+            }, function ($query){
+                return $query->whereHas('halaman', function ($subQuery) {
+                    $subQuery->where('tahun', '<=', 2023)->where('tahun', '>=', 2013);
                 });
             })
             ->get();
